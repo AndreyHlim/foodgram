@@ -1,0 +1,112 @@
+### Получение токена пользователем Garfild (Admin)
+POST http://127.0.0.1:8000/api/auth/token/login
+Content-Type: application/json
+
+{
+    "email": "andrey_08.12@mail.ru",
+    "password": "CDE#4rfv"
+}
+
+### Получение текущего пользователя (garfild)
+GET http://127.0.0.1:8000/api/users/subscriptions
+Content-Type: application/json
+Authorization: Token 24e3fa9c9607852a09a46dc3db63f1c2535fd857
+
+
+### Получение списка команд АПИ
+GET http://127.0.0.1:8000/api/
+Content-Type: application/json
+Authorization: Token 2a6a2389b42ca65573e7b8a4572ff366551ed886
+
+
+### Получение списка пользователей
+GET http://127.0.0.1:8000/api/users/me
+Content-Type: application/json
+
+
+
+### Создание рецепта 
+POST http://127.0.0.1:8000/api/recipes/
+Content-Type: application/json
+Authorization: Token 2a6a2389b42ca65573e7b8a4572ff366551ed886
+
+{
+    "ingredients": [
+        {
+            "id": 5,
+            "amount": 10
+        },
+        {
+            "id": 8,
+            "amount": 20
+        }
+    ],
+    "tags": [
+        4,
+        2
+    ],
+    "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+    "name": "Нечто съедобное (это не точно)",
+    "text": "Приготовьте как нибудь эти ингредиеты",
+    "cooking_time": 5
+}
+
+
+
+### Получение списка рецептов 
+GET http://127.0.0.1:8000/api/recipes/?is_favorited=1
+Content-Type: application/json
+Authorization: Token 983cd3919523e1e6274bf471143a340703e43738
+
+
+### Редактирование рецепта
+PATCH http://127.0.0.1:8000/api/recipes/15/
+Content-Type: application/json
+Authorization: Token 0a8f86551441d7d5c3c0ff6b8bba5ae9ad1e679d
+
+{
+  "ingredients": [
+    {
+      "id": 1,
+      "amount": 25
+    }
+  ],
+  "tags": [
+    2
+  ],
+  "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg==",
+  "name": "Нечто съедобное (пробовать на свой страх и риск)",
+  "text": "Приготовьте как нибудь эти ингредиеты, не забудьте посолить.",
+  "cooking_time": 12
+}
+
+
+### Список подписок (авторов другиз рецептов) текущего пользователя
+GET http://127.0.0.1:8000/api/users/subscriptions/?recipes_limit=2
+Content-Type: application/json
+Authorization: Token 983cd3919523e1e6274bf471143a340703e43738
+
+
+### Список подписок (авторов другиз рецептов) текущего пользователя
+POST http://127.0.0.1:8000/api/users/12/subscribe/?recipes_limit=2
+Content-Type: application/json
+Authorization: Token 983cd3919523e1e6274bf471143a340703e43738
+
+
+### Удаление рецепта из избранного
+DELETE  http://127.0.0.1:8000/api/recipes/1060/favorite/
+Content-Type: application/json
+Authorization: Token eb7f9caf6d3cd90d877af1532867cb1380f8931c
+
+
+### Удаление рецепта из избранного
+DELETE  http://127.0.0.1:8000/api/recipes/100/shopping_cart/
+Content-Type: application/json
+Authorization: Token eb7f9caf6d3cd90d877af1532867cb1380f8931c
+
+
+
+### Получение общего списка покупок 
+GET http://127.0.0.1:8000/api/recipes/download_shopping_cart
+Content-Type: application/json
+Authorization: Token 983cd3919523e1e6274bf471143a340703e43738
