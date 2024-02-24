@@ -1,16 +1,13 @@
 from django.db.models import Sum
 from rest_framework import viewsets, status
-from api.models import (
-    Ingredient, Tag, Recipe, Favourite, ShoppingCart, AmountIngredients
-)
-from users.models import Follow
+from api.models import Ingredient, Tag
+from recipes.models import Recipe, Favourite, ShoppingCart, AmountIngredients
 from api.serializers import (
-    IngreSerializer, TagSerializer, ProfileSerializer,
-    RecipesSerializer, FollowSerializer, RecipeLittleSerializer
+    IngreSerializer, TagSerializer,
+    RecipesSerializer, RecipeLittleSerializer
 )
 from rest_framework.pagination import LimitOffsetPagination
 from django.contrib.auth import get_user_model
-from djoser.views import UserViewSet
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from .permissions import AuthorStaffOrReadOnly
@@ -190,50 +187,3 @@ class TagViewSet(viewsets.ModelViewSet):
     permission_classes = (AllowAny,)
     pagination_class = None
     http_method_names = ['get']
-
-
-class ProfileViewSet(UserViewSet):
-    http_method_names = ['get', 'post', 'delete']
-    pagination_class = LimitOffsetPagination
-    serializer_class = ProfileSerializer
-
-    def get_permissions(self):
-        if self.action == 'me':
-            return (IsAuthenticated(),)
-        return (AllowAny(),)
-
-    def get_queryset(self):
-        return User.objects.all()
-
-    @action(
-        detail=False,
-        methods=['get'],
-        permission_classes=[IsAuthenticated],
-    )
-    def subscriptions(self, request):
-        user = request.user
-        followings = Follow.objects.filter(user=user)
-        queryset = User.objects.filter(
-            id__in=followings.values_list('following')
-        )
-        pages = self.paginate_queryset(queryset)
-        serializer = FollowSerializer(
-            pages,
-            many=True,
-            context={'request': request}
-        )
-        return self.get_paginated_response(serializer.data)
-
-
-class FollowViewSet(viewsets.ModelViewSet):
-    http_method_names = ['get']
-    serializer_class = FollowSerializer
-    pagination_class = LimitOffsetPagination
-    queryset = User.objects.all()
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        followings = Follow.objects.filter(user_id=self.request.user.id)
-        return User.objects.filter(
-            id__in=followings.values_list('following')
-        )

@@ -6,9 +6,10 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.db.models import F
-from api.models import Ingredient, Tag, Recipe, Favourite, ShoppingCart
+from api.models import Ingredient, Tag
 from users.models import Follow
-from api.ser import recipe_ingredients_set
+from recipes.models import Recipe, Favourite, ShoppingCart
+from api.func import recipe_ingredients_set
 from api.validators import ingredients_validator
 
 

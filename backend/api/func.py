@@ -1,4 +1,4 @@
-from api.models import AmountIngredients
+from recipes.models import AmountIngredients
 
 
 def recipe_ingredients_set(recipe, ingredients):
