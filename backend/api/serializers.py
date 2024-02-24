@@ -6,17 +6,21 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.db.models import F
-from api.models import Ingredient, Tag
+from recipes.models import Ingredient, Tag
 from users.models import Follow
-from recipes.models import Recipe, Favourite, ShoppingCart
-from api.func import recipe_ingredients_set
-from api.validators import ingredients_validator
+from recipes.models import Recipe, ShoppingCart, Favourite
+from api.func import recipe_ingredients_set, obj_in_table
+from foodgram.validators import tags_validator, ingredients_validator
 
 
 User = get_user_model()
 
 
 class IngreSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор модели 'Ингредиенты'.
+    Используется для отображения списка ингредиентов.
+    """
 
     class Meta:
         model = Ingredient
@@ -24,6 +28,10 @@ class IngreSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор модели 'Тег'.
+    Используется для отображения списка тегов.
+    """
 
     class Meta:
         model = Tag
@@ -31,6 +39,12 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для пользовательской модели User.
+    Используется для отображение пользовател(я/ей),
+    а также библиотекой Djoser через настройки SETTINGS.DJOSER.
+    """
+
     is_subscribed = SerializerMethodField()
 
     class Meta:
@@ -44,12 +58,15 @@ class ProfileSerializer(serializers.ModelSerializer):
             'is_subscribed',
         )
 
-    def get_is_subscribed(self, obj):
-        follow = Follow.objects.filter(
-            user=obj.id,
-            following=self.context.get('request').user.id,
+    def get_is_subscribed(self, user):
+        """Узнаёт подписан ли запрашиваемый пользователь на запрашивающего"""
+
+        user_idols = user.subscriptions.all()
+        my_fan = user_idols.filter(
+            following_id=self.context.get('request').user.id
+            # без ".id" незарегистрированный пользователь получит ошибку
         )
-        return follow.exists()
+        return my_fan.exists()
 
 
 class Base64ImageField(serializers.ImageField):
@@ -70,12 +87,14 @@ class Base64ImageField(serializers.ImageField):
 
 
 class RecipesSerializer(serializers.ModelSerializer):
+    """Сериализатор для отображения рецепта/рецептов."""
+
     tags = TagSerializer(many=True, read_only=True)
+    author = ProfileSerializer(many=False, read_only=True)
     ingredients = SerializerMethodField()
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
-    author = ProfileSerializer(many=False, read_only=True)
-    image = Base64ImageField(required=False, allow_null=True)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
@@ -101,38 +120,25 @@ class RecipesSerializer(serializers.ModelSerializer):
         )
         return ingredients
 
-    def get_is_favorited(self, obj):
-        user = self.context.get('request').user
-        if not user.id:
-            return False
-        recipe = Favourite.objects.filter(
-            user=user,
-            recipe=obj,
-        )
-        return recipe.exists()
+    def get_is_favorited(self, recipe):
+        """Определяет находится ли рецепт в избранном."""
 
-    def get_is_in_shopping_cart(self, obj):
-        user = self.context.get('request').user
-        if not user.id:
-            return False
-        recipe = ShoppingCart.objects.filter(
-            user=user,
-            recipe=obj,
-        )
-        return recipe.exists()
+        return obj_in_table(self, recipe, Favourite)
+
+    def get_is_in_shopping_cart(self, recipe):
+        """Определяет, есть ли рецепт в избранных рецептах пользователя."""
+
+        return obj_in_table(self, recipe, ShoppingCart)
 
     def validate(self, data):
-        tags_ids = self.initial_data.get('tags')
+        tags = self.initial_data.get('tags')
         ingredients = self.initial_data.get('ingredients')
         image = self.initial_data.get('image')
 
-        if not tags_ids or not ingredients or not image:
+        if not tags or not ingredients or not image:
             raise ValidationError('Мало данных для создания рецепта.')
 
-        tags = Tag.objects.filter(id__in=tags_ids)
-
-        if len(tags) != len(tags_ids):
-            raise ValidationError('Указан несуществующий тэг')
+        tags_validator(tags, Tag)
 
         ingredients = ingredients_validator(ingredients, Ingredient)
 

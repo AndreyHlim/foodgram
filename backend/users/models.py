@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from api.validators import validate_username
+from foodgram.validators import validate_username
 from django.contrib.auth import get_user_model
 
 
@@ -48,10 +48,6 @@ class Follow(models.Model):
                 fields=['user', 'following'],
                 name='unique_subscriptions'
             ),
-            # models.CheckConstraint(
-            #     check=~Q(user=F("following")),
-            #     name='Подписака на самого себя'
-            # ),
         ]
 
     def __str__(self):

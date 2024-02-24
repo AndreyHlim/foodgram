@@ -1,6 +1,6 @@
 from django.db.models import Sum
 from rest_framework import viewsets, status
-from api.models import Ingredient, Tag
+from recipes.models import Ingredient, Tag
 from recipes.models import Recipe, Favourite, ShoppingCart, AmountIngredients
 from api.serializers import (
     IngreSerializer, TagSerializer,

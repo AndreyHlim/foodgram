@@ -1,9 +1,9 @@
 from django.contrib import admin
-from api.models import (
+from users.models import Profile, Follow
+from recipes.models import (
+    Recipe, Favourite, ShoppingCart,
     Ingredient, Tag
 )
-from users.models import Profile, Follow
-from recipes.models import Recipe, Favourite, ShoppingCart, AmountIngredients
 
 
 @admin.register(Profile)
@@ -41,6 +41,6 @@ class ShoppingAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(AmountIngredients)
-class AmountAdmin(admin.ModelAdmin):
-    pass
+# @admin.register(AmountIngredients)
+# class AmountAdmin(admin.ModelAdmin):
+#     pass

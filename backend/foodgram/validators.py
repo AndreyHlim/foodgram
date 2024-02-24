@@ -11,6 +11,14 @@ def validate_username(instance):
         )
 
 
+def tags_validator(tags_check, model):
+    tags = model.objects.filter(id__in=tags_check)
+    if len(set(tags_check)) != len(tags_check):
+        raise ValidationError('Указан повторяющийся тэг')
+    if len(tags) != len(tags_check):
+        raise ValidationError('Указан несуществующий тэг')
+
+
 def ingredients_validator(ingredients, model):
     if not ingredients:
         raise ValidationError('Не указаны ингридиенты')
