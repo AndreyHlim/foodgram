@@ -1,8 +1,9 @@
 from django.contrib import admin
 from api.models import (
-    Profile, Ingredient, Tag, Recipe, Follow, Favourite,
+    Ingredient, Tag, Recipe, Favourite,
     ShoppingCart, AmountIngredients
 )
+from users.models import Profile, Follow
 
 
 @admin.register(Profile)

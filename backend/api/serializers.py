@@ -6,7 +6,8 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.db.models import F
-from api.models import Ingredient, Tag, Recipe, Follow, Favourite, ShoppingCart
+from api.models import Ingredient, Tag, Recipe, Favourite, ShoppingCart
+from users.models import Follow
 from api.ser import recipe_ingredients_set
 from api.validators import ingredients_validator
 
@@ -28,20 +29,7 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'color', 'slug')
 
 
-# class ProfileSerializer(serializers.ModelSerializer):
-
-#     class Meta:
-#         model = User
-#         fields = (
-#             'email',
-#             'id',
-#             'username',
-#             'first_name',
-#             'last_name',
-#         )
-
-
-class ProfileMeSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
     is_subscribed = SerializerMethodField()
 
     class Meta:
@@ -85,7 +73,7 @@ class RecipesSerializer(serializers.ModelSerializer):
     ingredients = SerializerMethodField()
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
-    author = ProfileMeSerializer(many=False, read_only=True)
+    author = ProfileSerializer(many=False, read_only=True)
     image = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
@@ -166,15 +154,11 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     def update(self, recipe, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        for key, value in validated_data.items():
-            if hasattr(recipe, key):
-                setattr(recipe, key, value)
-
         if tags:
             recipe.tags.clear()
             recipe.tags.set(tags)
 
+        ingredients = validated_data.pop('ingredients')
         if ingredients:
             recipe.ingredients.clear()
             recipe_ingredients_set(recipe, ingredients)

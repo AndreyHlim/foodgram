@@ -1,10 +1,11 @@
 from django.db.models import Sum
 from rest_framework import viewsets, status
 from api.models import (
-    Ingredient, Tag, Recipe, Follow, Favourite, ShoppingCart, AmountIngredients
+    Ingredient, Tag, Recipe, Favourite, ShoppingCart, AmountIngredients
 )
+from users.models import Follow
 from api.serializers import (
-    IngreSerializer, TagSerializer, ProfileMeSerializer,
+    IngreSerializer, TagSerializer, ProfileSerializer,
     RecipesSerializer, FollowSerializer, RecipeLittleSerializer
 )
 from rest_framework.pagination import LimitOffsetPagination
@@ -13,12 +14,7 @@ from djoser.views import UserViewSet
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from .permissions import AuthorStaffOrReadOnly
-from rest_framework.decorators import (
-    api_view, permission_classes as dec_permission_classes,
-    action
-)
-from rest_framework.exceptions import ValidationError
-from django.db import IntegrityError
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -199,7 +195,7 @@ class TagViewSet(viewsets.ModelViewSet):
 class ProfileViewSet(UserViewSet):
     http_method_names = ['get', 'post', 'delete']
     pagination_class = LimitOffsetPagination
-    serializer_class = ProfileMeSerializer
+    serializer_class = ProfileSerializer
 
     def get_permissions(self):
         if self.action == 'me':
@@ -241,42 +237,3 @@ class FollowViewSet(viewsets.ModelViewSet):
         return User.objects.filter(
             id__in=followings.values_list('following')
         )
-
-
-@api_view(['POST', 'DELETE'])
-@dec_permission_classes([IsAuthenticated])
-def create_subscribe(request, user_id):
-    # проверки надо перенести в валидаторс точка пай
-    if request.method == 'POST':
-        follow = get_object_or_404(User, id=user_id)
-        if request.user.id == int(user_id):
-            raise ValidationError('Попытка подписаться на самого себя!')
-
-        follow = Follow.objects.all().filter(
-            following=user_id
-        ).filter(user=request.user)
-        if follow.exists():
-            raise ValidationError('Подписка уже оформлена!')
-        try:
-            follow, create = Follow.objects.get_or_create(
-                user=request.user,
-                following=User.objects.get(id=user_id),
-            )
-        except IntegrityError:
-            raise ValidationError('Что-то навернулось!')
-        serializer = FollowSerializer(
-            follow.following, context={"request": request}
-        )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    else:
-        # проверить существует ли запрашиваемый автор
-        follow = get_object_or_404(User, id=user_id)
-        following = Follow.objects.filter(user=request.user, following=follow)
-        if not following.exists():
-            return Response(
-                    {'errors': 'Запрашиваемой подписки не сущестовало!'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        following.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'rest_framework.authtoken',
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -43,7 +44,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'backend.urls'
+ROOT_URLCONF = 'foodgram.urls'
 
 TEMPLATES = [
     {
@@ -61,7 +62,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'backend.wsgi.application'
+WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 
 # Database
@@ -78,7 +79,7 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
-AUTH_USER_MODEL = 'api.Profile'
+AUTH_USER_MODEL = 'users.Profile'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -159,9 +160,9 @@ DJOSER = {
         "user_create": "djoser.serializers.UserCreateSerializer",
         "user_create_password_retype": "djoser.serializers.UserCreatePasswordRetypeSerializer",
         "user_delete": "djoser.serializers.UserDeleteSerializer",
-        "user": "api.serializers.ProfileMeSerializer",
-        "user_list": "api.serializers.ProfileMeSerializer",
-        "current_user": "api.serializers.ProfileMeSerializer",
+        "user": "api.serializers.ProfileSerializer",
+        "user_list": "api.serializers.ProfileSerializer",
+        "current_user": "api.serializers.ProfileSerializer",
         "token": "djoser.serializers.TokenSerializer",
         "token_create": "djoser.serializers.TokenCreateSerializer",
     },
