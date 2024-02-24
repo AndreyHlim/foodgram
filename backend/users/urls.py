@@ -1,5 +1,5 @@
 from rest_framework import routers
-from api.views import ProfileViewSet
+from users.views import ProfileViewSet
 from django.urls import include, path
 from users.views import create_subscribe
 
