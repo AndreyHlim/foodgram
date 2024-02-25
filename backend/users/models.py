@@ -1,7 +1,7 @@
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-from foodgram.validators import validate_username
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from foodgram.validators import validate_username
 
 
 class Profile(AbstractUser):

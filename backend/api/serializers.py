@@ -1,17 +1,15 @@
 import base64  # Модуль с функциями кодирования и декодирования base64
 
+from api.func import obj_in_table, recipe_ingredients_set
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.db.models import F
+from foodgram.validators import ingredients_validator, tags_validator
+from recipes.models import Favourite, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
-from django.contrib.auth import get_user_model
-from django.core.files.base import ContentFile
-from django.core.exceptions import ValidationError
-from django.db.models import F
-from recipes.models import Ingredient, Tag
 from users.models import Follow
-from recipes.models import Recipe, ShoppingCart, Favourite
-from api.func import recipe_ingredients_set, obj_in_table
-from foodgram.validators import tags_validator, ingredients_validator
-
 
 User = get_user_model()
 

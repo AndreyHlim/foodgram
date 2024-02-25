@@ -1,20 +1,17 @@
-from rest_framework.decorators import (
-    api_view, permission_classes as dec_permission_classes
-)
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.shortcuts import get_object_or_404
-from rest_framework.exceptions import ValidationError
-from users.models import Follow
+from api.serializers import FollowSerializer, ProfileSerializer
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
-from api.serializers import FollowSerializer, ProfileSerializer
-from rest_framework.response import Response
-from rest_framework import status
+from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
+from rest_framework import status, viewsets
+from rest_framework.decorators import action, api_view
+from rest_framework.decorators import \
+    permission_classes as dec_permission_classes
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.decorators import action
-from rest_framework import viewsets
-
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from users.models import Follow
 
 User = get_user_model()
 
@@ -51,9 +48,9 @@ def create_subscribe(request, user_id):
         following = Follow.objects.filter(user=request.user, following=follow)
         if not following.exists():
             return Response(
-                    {'errors': 'Запрашиваемой подписки не сущестовало!'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                {'errors': 'Запрашиваемой подписки не сущестовало!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         following.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

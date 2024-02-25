@@ -1,8 +1,6 @@
-from rest_framework import routers
-from users.views import ProfileViewSet
 from django.urls import include, path
-from users.views import create_subscribe
-
+from rest_framework import routers
+from users.views import ProfileViewSet, create_subscribe
 
 router = routers.DefaultRouter()
 router.register(r'users', ProfileViewSet, basename='Users')
