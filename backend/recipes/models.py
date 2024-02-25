@@ -58,9 +58,6 @@ class Recipe(models.Model):
     image = models.ImageField(
         verbose_name='Фото блюда',
         upload_to='recipes/images/',
-        # null=True,
-        # blank=True,
-        # default=None,
     )
     name = models.CharField(
         verbose_name='Название рецепта',
@@ -97,9 +94,6 @@ class Recipe(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         super().save(*args, **kwargs)
-        # image = Image.open(self.image.path)
-        # image.thumbnail(Tuples.RECIPE_IMAGE_SIZE)
-        # image.save(self.image.path)
 
 
 class AmountIngredients(models.Model):
