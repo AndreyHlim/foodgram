@@ -47,7 +47,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         favourite = self.request.query_params.get('is_favorited')
         shopping = self.request.query_params.get('is_in_shopping_cart')
         if tags != []:
-            queryset = queryset.filter(tags__slug__in=tags)
+            queryset = queryset.filter(tags__slug__in=tags).distinct('id')
         if author is not None:
             queryset = queryset.filter(author=author)
         if favourite is not None:
