@@ -79,6 +79,10 @@ class Recipe(models.Model):
         on_delete=models.SET_NULL,
         null=True,
     )
+    pub_date = models.DateTimeField(
+        'Дата публикации рецепта',
+        auto_now_add=True,
+    )
 
     class Meta:
         verbose_name = 'рецепт'
