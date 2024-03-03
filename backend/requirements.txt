@@ -36,3 +36,4 @@ uritemplate==4.1.1
 urllib3==2.2.1
 psycopg2-binary==2.9.3
 django-cors-headers==3.13.0
+drf-extra-fields==3.2.1

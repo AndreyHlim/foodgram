@@ -15,7 +15,7 @@ services:
     image: garfild70/foodgram_backend
     env_file: .env
     volumes:
-      - static_volume:/backend_static
+      - static_volume:/backend_static/
       - media:/app/media/
   frontend:
     image: garfild70/foodgram_frontend
