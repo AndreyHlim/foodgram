@@ -12,8 +12,8 @@ from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-
 from .permissions import AuthorStaffOrReadOnly
+
 
 User = get_user_model()
 
@@ -36,7 +36,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     serializer_class = RecipesSerializer
     permission_classes = (AuthorStaffOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
-    queryset = Recipe.objects.all().order_by('-pub_date')
+    queryset = Recipe.objects.all().order_by('-id')
     filter_backends = (DjangoFilterBackend,)
     pagination_class = LimitOffsetPagination
 

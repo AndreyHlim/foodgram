@@ -1,4 +1,3 @@
-# docker-compose.yml
 version: '3'
 
 volumes:
@@ -30,7 +29,7 @@ services:
     build: ./gateway/
     env_file: .env
     volumes:
-      - static:/staticfiles
+      - static:/staticfiles/
       - media:/app/media/
     ports:
       - 8000:80
