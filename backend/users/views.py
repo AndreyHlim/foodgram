@@ -5,8 +5,7 @@ from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view
-from rest_framework.decorators import \
-    permission_classes as dec_permission_classes
+from rest_framework.decorators import permission_classes as permission
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -17,7 +16,7 @@ User = get_user_model()
 
 
 @api_view(['POST', 'DELETE'])
-@dec_permission_classes([IsAuthenticated])
+@permission([IsAuthenticated])
 def create_subscribe(request, user_id):
     # проверки надо перенести в валидаторс точка пай
     if request.method == 'POST':
@@ -42,17 +41,16 @@ def create_subscribe(request, user_id):
         )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    else:
-        # проверить существует ли запрашиваемый автор
-        follow = get_object_or_404(User, id=user_id)
-        following = Follow.objects.filter(user=request.user, following=follow)
-        if not following.exists():
-            return Response(
-                {'errors': 'Запрашиваемой подписки не сущестовало!'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        following.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # проверить существует ли запрашиваемый автор
+    follow = get_object_or_404(User, id=user_id)
+    following = Follow.objects.filter(user=request.user, following=follow)
+    if not following.exists():
+        return Response(
+            {'errors': 'Запрашиваемой подписки не сущестовало!'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    following.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ProfileViewSet(UserViewSet):

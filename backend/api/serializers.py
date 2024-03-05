@@ -10,8 +10,6 @@ from recipes.models import Favourite, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
 from users.models import Follow
-from drf_extra_fields.fields import Base64ImageField
-
 
 User = get_user_model()
 
@@ -69,21 +67,21 @@ class ProfileSerializer(serializers.ModelSerializer):
         return my_fan.exists()
 
 
-# class Base64ImageField(serializers.ImageField):
-#     def to_internal_value(self, data):
-#         # Если полученный объект строка, и эта строка
-#         # начинается с 'data:image'...
-#         if isinstance(data, str) and data.startswith('data:image'):
-#             # ...начинаем декодировать изображение из base64.
-#             # Сначала нужно разделить строку на части.
-#             format, imgstr = data.split(';base64,')
-#             # И извлечь расширение файла.
-#             ext = format.split('/')[-1]
-#             # Затем декодировать сами данные и поместить результат в файл,
-#             # которому дать название по шаблону.
-#             data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        # Если полученный объект строка, и эта строка
+        # начинается с 'data:image'...
+        if isinstance(data, str) and data.startswith('data:image'):
+            # ...начинаем декодировать изображение из base64.
+            # Сначала нужно разделить строку на части.
+            format, imgstr = data.split(';base64,')
+            # И извлечь расширение файла.
+            ext = format.split('/')[-1]
+            # Затем декодировать сами данные и поместить результат в файл,
+            # которому дать название по шаблону.
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 
-#         return super().to_internal_value(data)
+        return super().to_internal_value(data)
 
 
 class RecipesSerializer(serializers.ModelSerializer):
@@ -112,13 +110,12 @@ class RecipesSerializer(serializers.ModelSerializer):
         )
 
     def get_ingredients(self, recipe):
-        ingredients = recipe.ingredients.values(
+        return recipe.ingredients.values(
             'id',
             'name',
             'measurement_unit',
             amount=F('recipe__amount')
         )
-        return ingredients
 
     def get_is_favorited(self, recipe):
         """Определяет находится ли рецепт в избранном."""

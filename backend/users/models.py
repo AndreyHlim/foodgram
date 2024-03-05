@@ -5,8 +5,15 @@ from foodgram.validators import validate_username
 
 
 class Profile(AbstractUser):
-    email = models.EmailField(max_length=254, unique=True)
-    first_name = models.CharField(max_length=150)
+    email = models.EmailField(
+        verbose_name='Email пользователя',
+        max_length=254,
+        unique=True,
+    )
+    first_name = models.CharField(
+        verbose_name='Имя пользователя',
+        max_length=150,
+    )
     username = models.CharField(
         max_length=150, unique=True,
         validators=(validate_username,)
@@ -37,7 +44,7 @@ class Follow(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='users',
-        verbose_name='На кого подписан'
+        verbose_name='На кого подписан',
     )
 
     class Meta:

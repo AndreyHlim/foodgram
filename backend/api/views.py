@@ -9,11 +9,11 @@ from recipes.models import (AmountIngredients, Favourite, Ingredient, Recipe,
                             ShoppingCart, Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .permissions import AuthorStaffOrReadOnly
 
+from .paginators import PageLimitPagination
+from .permissions import AuthorStaffOrReadOnly
 
 User = get_user_model()
 
@@ -28,7 +28,7 @@ class IngreViewSet(viewsets.ModelViewSet):
         queryset = Ingredient.objects.all()
         name = self.request.query_params.get('name')
         if name is not None:
-            queryset = queryset.filter(name__startswith=name)
+            return queryset.filter(name__startswith=name)
         return queryset
 
 
@@ -36,9 +36,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     serializer_class = RecipesSerializer
     permission_classes = (AuthorStaffOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
+    pagination_class = PageLimitPagination
     queryset = Recipe.objects.all().order_by('-id')
     filter_backends = (DjangoFilterBackend,)
-    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         queryset = self.queryset
@@ -56,16 +56,14 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 return queryset
             if int(favourite) == 1:
                 return queryset.filter(favorites__user=user)
-            elif int(favourite) == 0:
-                return queryset.exclude(favorites__user=user)
+            return queryset.exclude(favorites__user=user)
         if shopping is not None:
             user = self.request.user
             if user.is_anonymous:
                 return queryset
             if int(shopping) == 1:
                 return queryset.filter(shopping__user=user)
-            elif int(shopping) == 0:
-                return queryset.exclude(shopping__user=user)
+            return queryset.exclude(shopping__user=user)
         return queryset
 
     @action(
@@ -95,19 +93,17 @@ class RecipesViewSet(viewsets.ModelViewSet):
             Favourite.objects.create(user=user, recipe=recipe)
             serializer = RecipeLittleSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            recipe = get_object_or_404(Recipe, id=pk)
-            user = request.user
+        recipe = get_object_or_404(Recipe, id=pk)
+        user = request.user
 
-            favourite = Favourite.objects.filter(user=user, recipe__id=pk)
-            if favourite.exists():
-                favourite.delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            else:
-                return Response(
-                    {'errors': f'Рецепт не в избранном пользователя {user}!'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+        favourite = Favourite.objects.filter(user=user, recipe__id=pk)
+        if favourite.exists():
+            favourite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'errors': f'Рецепт не в избранном пользователя {user}!'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(
         detail=True,

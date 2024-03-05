@@ -6,8 +6,15 @@ User = get_user_model()
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=200, unique=True)
-    measurement_unit = models.CharField(max_length=200)
+    name = models.CharField(
+        max_length=200,
+        unique=True,
+        verbose_name='Название',
+    )
+    measurement_unit = models.CharField(
+        max_length=200,
+        verbose_name='Единыцы измерений',
+    )
 
     class Meta:
         verbose_name = 'ингридиент'
@@ -21,17 +28,20 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=200,
         unique=True,
+        verbose_name='Название',
     )
     color = models.CharField(
         max_length=7,
         null=True,
         blank=True,
+        verbose_name='Цвет',
     )
     slug = models.SlugField(
         max_length=200,
         null=True,
         blank=True,
         unique=True,
+        verbose_name='URL тега',
     )
 
     class Meta:
@@ -98,23 +108,46 @@ class Recipe(models.Model):
     def save(self, *args, **kwargs) -> None:
         super().save(*args, **kwargs)
 
+    def display_favourite(self):
+        query = Favourite.objects.filter(recipe_id=self.pk)
+        return query.count()
+    display_favourite.short_description = 'Количество добавлений в избранное'
+
+    def display_tags(self):
+        return ', '.join([recipe.name for recipe in self.tags.all()])
+    display_tags.short_description = 'Теги'
+
 
 class AmountIngredients(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         related_name='ingredient',
+        verbose_name='Рецепт',
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         related_name='recipe',
+        verbose_name='Ингредиенты'
     )
     amount = models.IntegerField(
+        verbose_name='Количество',
         validators=(
             MinValueValidator(1,),
         )
     )
+
+    class Meta:
+        verbose_name = 'рецепт'
+        verbose_name_plural = 'Количество ингредиентов в рецептах'
+
+    def __str__(self):
+        return (f'Рецепт "{self.recipe}"')
+
+    def display_author(self):
+        return self.recipe.author.get_username()
+    display_author.short_description = 'Автор рецепта'
 
 
 class Favourite(models.Model):
@@ -129,7 +162,7 @@ class Favourite(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='favorites',
-        verbose_name='Рецепт',
+        verbose_name='Избранный рецепт',
     )
 
     class Meta:
