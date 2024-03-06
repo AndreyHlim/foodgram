@@ -92,7 +92,7 @@ class RecipesSerializer(serializers.ModelSerializer):
     ingredients = SerializerMethodField()
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
-    image = Base64ImageField(required=False, allow_null=True, use_url=False)
+    image = Base64ImageField(required=False, allow_null=True, use_url=True)
 
     class Meta:
         model = Recipe
@@ -165,9 +165,11 @@ class RecipesSerializer(serializers.ModelSerializer):
         instance.image = validated_data.get('image', instance.image)
 
         ingredients = validated_data.pop('ingredients')
+        instance.ingredients.clear()
         recipe_ingredients_set(instance, ingredients)
 
         tags = validated_data.pop('tags')
+        instance.tags.clear()
         instance.tags.set(tags)
 
         instance.save()

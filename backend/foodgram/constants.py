@@ -5,7 +5,7 @@ USER_NAME_REG = r'^[\w.@+-]+\Z'
 USER_MAX_LEN_EMAIL = 254
 
 # Максимальная длина <имени> пользователя
-USER_MAX_LEN_FIRST_NAME = 254
+USER_MAX_LEN_FIRST_NAME = 150
 
 # Максимальная длина <username> пользователя
 USER_MAX_LEN_USERNAME = 150
