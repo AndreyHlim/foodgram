@@ -29,7 +29,7 @@ RECIPE_MAX_NAME = 200
 RECIPE_MAX_TEXT = 1000
 
 # Минимальное <время приготовления> рецепта
-RECIPE_MIN_TIME = 1000
+RECIPE_MIN_TIME = 1
 
 # Маскимальная длина <названия> тега
 TAG_MAX_NAME = 200
