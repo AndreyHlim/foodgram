@@ -1,18 +1,19 @@
+import foodgram.constants as var
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
-import foodgram.constants as VAR
+
 User = get_user_model()
 
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=VAR.INGREDIENT_MAX_NAME,
+        max_length=var.INGREDIENT_MAX_NAME,
         unique=True,
         verbose_name='Название',
     )
     measurement_unit = models.CharField(
-        max_length=VAR.INGREDIENT_MAX_NAME_UNIT,
+        max_length=var.INGREDIENT_MAX_NAME_UNIT,
         verbose_name='Единыцы измерений',
     )
 
@@ -26,18 +27,18 @@ class Ingredient(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=var.TAG_MAX_NAME,
         unique=True,
         verbose_name='Название',
     )
     color = models.CharField(
-        max_length=7,
+        max_length=var.TAG_MAX_LEN_COLOR_NAME,
         null=True,
         blank=True,
         verbose_name='Цвет',
     )
     slug = models.SlugField(
-        max_length=200,
+        max_length=var.TAG_MAX_LEN_SLUG_NAME,
         null=True,
         blank=True,
         unique=True,
@@ -70,16 +71,16 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         verbose_name='Название рецепта',
-        max_length=VAR.RECIPE_MAX_NAME,
+        max_length=var.RECIPE_MAX_NAME,
     )
     text = models.CharField(
         verbose_name='Описание рецепта',
-        max_length=VAR.RECIPE_MAX_TEXT,
+        max_length=var.RECIPE_MAX_TEXT,
     )
     cooking_time = models.IntegerField(
         verbose_name='Время приготовления',
         validators=(
-            MinValueValidator(VAR.RECIPE_MIN_TIME,),
+            MinValueValidator(var.RECIPE_MIN_TIME,),
         )
     )
     author = models.ForeignKey(

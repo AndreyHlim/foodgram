@@ -1,10 +1,11 @@
 import re
-import foodgram.constants as VAR
+
+import foodgram.constants as var
 from django.core.exceptions import ValidationError
 
 
 def validate_username(instance):
-    name_template = VAR.USER_NAME_REG
+    name_template = var.USER_NAME_REG
     if re.fullmatch(name_template, instance) is None:
         raise ValidationError(
             'Введите корректное значение username. '
@@ -34,7 +35,7 @@ def ingredients_validator(ingredients, model):
             raise ValidationError('В рецепте есть повторяющиеся ингридиенты')
 
         valid_ings[ing['id']] = int(ing['amount'])
-        if valid_ings[ing['id']] < VAR.INGREDIENT_MIN_AMOUNT:
+        if valid_ings[ing['id']] < var.INGREDIENT_MIN_AMOUNT:
             raise ValidationError('Неправильное количество ингридиента')
 
     if not valid_ings:
