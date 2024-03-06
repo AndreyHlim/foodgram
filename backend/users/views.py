@@ -11,7 +11,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from users.models import Follow
 
-
 User = get_user_model()
 
 
@@ -53,8 +52,14 @@ class ProfileViewSet(UserViewSet):
         permission_classes=[IsAuthenticated],
     )
     def subscribe(self, request, id):
+        if not request.user.id:
+            return Response(
+                {'errors': 'Запрос от анонимного пользователя!'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        follow = get_object_or_404(User, id=id)
         if request.method == 'POST':
-            follow = get_object_or_404(User, id=id)
             if request.user.id == int(id):
                 raise ValidationError('Попытка подписаться на самого себя!')
 
@@ -76,7 +81,7 @@ class ProfileViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         # проверить существует ли запрашиваемый автор
-        follow = get_object_or_404(User, id=id)
+        # follow = get_object_or_404(User, id=id)
         following = Follow.objects.filter(user=request.user, following=follow)
         if not following.exists():
             return Response(

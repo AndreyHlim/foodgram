@@ -1,36 +1,35 @@
-# docker-compose.yml
 version: '3'
 
 volumes:
-  pg_data:
-  static:
-  media:
+  pg_data_production:
+  static_prod:
+  media_prod:
 
 services:
   db:
     image: postgres:13
     env_file: .env
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data_production:/var/lib/postgresql/data
   backend:
     image: garfild70/foodgram_backend
     env_file: .env
     volumes:
-      - static:/backend_static
-      - media:/app/media/
+      - static_prod:/backend_static
+      - media_prod:/app/media/
 
   frontend:
     env_file: .env
     image: garfild70/foodgram_frontend
     command: cp -r /app/build/. /frontend_static/
     volumes:
-      - static:/frontend_static
+      - static_prod:/frontend_static
 
   gateway:
     image: garfild70/foodgram_gateway
     env_file: .env
     volumes:
-      - static:/staticfiles
-      - media:/app/media/
+      - static_prod:/staticfiles
+      - media_prod:/app/media/
     ports:
       - 8000:80

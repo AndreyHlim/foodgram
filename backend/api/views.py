@@ -35,7 +35,7 @@ class IngreViewSet(viewsets.ModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     serializer_class = RecipesSerializer
     permission_classes = (AuthorStaffOrReadOnly,)
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    http_method_names = ('get', 'post', 'patch', 'delete')
     pagination_class = PageLimitPagination
     queryset = Recipe.objects.all().order_by('-id')
     filter_backends = (DjangoFilterBackend,)
@@ -93,6 +93,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
             Favourite.objects.create(user=user, recipe=recipe)
             serializer = RecipeLittleSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         recipe = get_object_or_404(Recipe, id=pk)
         user = request.user
 

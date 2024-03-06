@@ -1,23 +1,13 @@
 import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-key')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9yvq-l*&%5#%-&%ywy!f@=g%6(e)3=k6*!=et#3vykd(02z5b-'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['51.250.101.209', 'localhost', '']
-
-
-# Application definition
+ALLOWED_HOSTS = ['51.250.101.209', 'localhost', 'garfild.ddnsking.com', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -65,14 +55,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DB', 'django'),
         'USER': os.getenv('POSTGRES_USER', 'django'),
@@ -81,10 +65,6 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT', 5432)
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_USER_MODEL = 'users.Profile'
 
@@ -103,10 +83,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
@@ -117,18 +93,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'collected_static'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -147,31 +116,9 @@ REST_FRAMEWORK = {
 DJOSER = {
     "LOGIN_FIELD": "email",
     "HIDE_USERS": False,
-    "PERMISSIONS": {
-        "resipe": ("api.permissions.AuthorStaffOrReadOnly,",),
-        "recipe_list": ("api.permissions.AuthorStaffOrReadOnly",),
-        "user": ("api.permissions.OwnerUserOrReadOnly",),
-        "user_list": ("api.permissions.OwnerUserOrReadOnly",),
-    },
     "SERIALIZERS": {
-        "activation": "djoser.serializers.ActivationSerializer",
-        "password_reset": "djoser.serializers.SendEmailResetSerializer",
-        "password_reset_confirm": "djoser.serializers.PasswordResetConfirmSerializer",
-        "password_reset_confirm_retype": "djoser.serializers.PasswordResetConfirmRetypeSerializer",
-        "set_password": "djoser.serializers.SetPasswordSerializer",
-        "set_password_retype": "djoser.serializers.SetPasswordRetypeSerializer",
-        "set_username": "djoser.serializers.SetUsernameSerializer",
-        "set_username_retype": "djoser.serializers.SetUsernameRetypeSerializer",
-        "username_reset": "djoser.serializers.SendEmailResetSerializer",
-        "username_reset_confirm": "djoser.serializers.UsernameResetConfirmSerializer",
-        "username_reset_confirm_retype": "djoser.serializers.UsernameResetConfirmRetypeSerializer",
-        "user_create": "djoser.serializers.UserCreateSerializer",
-        "user_create_password_retype": "djoser.serializers.UserCreatePasswordRetypeSerializer",
-        "user_delete": "djoser.serializers.UserDeleteSerializer",
         "user": "api.serializers.ProfileSerializer",
         "user_list": "api.serializers.ProfileSerializer",
         "current_user": "api.serializers.ProfileSerializer",
-        "token": "djoser.serializers.TokenSerializer",
-        "token_create": "djoser.serializers.TokenCreateSerializer",
     },
 }

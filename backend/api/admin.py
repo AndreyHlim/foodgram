@@ -8,7 +8,7 @@ from users.models import Follow, Profile
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'email')
     list_filter = list_display
-    search_fields = ('first_name', 'email')
+    search_fields = list_display
 
 
 @admin.register(Ingredient)

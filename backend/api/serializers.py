@@ -1,4 +1,4 @@
-import base64  # Модуль с функциями кодирования и декодирования base64
+import base64
 
 from api.func import obj_in_table, recipe_ingredients_set
 from django.contrib.auth import get_user_model
@@ -59,12 +59,12 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, user):
         """Узнаёт подписан ли запрашиваемый пользователь на запрашивающего"""
 
-        user_idols = user.subscriptions.all()
-        my_fan = user_idols.filter(
-            following_id=self.context.get('request').user.id
-            # без ".id" незарегистрированный пользователь получит ошибку
-        )
-        return my_fan.exists()
+        request = self.context.get('request')
+        if request is None:
+            return False
+        return Follow.objects.filter(
+            user_id=request.user.id, following=user
+        ).exists()
 
 
 class Base64ImageField(serializers.ImageField):
@@ -92,7 +92,7 @@ class RecipesSerializer(serializers.ModelSerializer):
     ingredients = SerializerMethodField()
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
-    image = Base64ImageField(required=False, allow_null=True)
+    image = Base64ImageField(required=False, allow_null=True, use_url=False)
 
     class Meta:
         model = Recipe
@@ -114,7 +114,7 @@ class RecipesSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'measurement_unit',
-            amount=F('recipe__amount')
+            amount=F('recipe__amount'),
         )
 
     def get_is_favorited(self, recipe):
@@ -156,23 +156,27 @@ class RecipesSerializer(serializers.ModelSerializer):
         recipe_ingredients_set(recipe, ingredients)
         return recipe
 
-    def update(self, recipe, validated_data):
-        tags = validated_data.pop('tags')
-        if tags:
-            recipe.tags.clear()
-            recipe.tags.set(tags)
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time
+        )
+        instance.image = validated_data.get('image', instance.image)
 
         ingredients = validated_data.pop('ingredients')
-        if ingredients:
-            recipe.ingredients.clear()
-            recipe_ingredients_set(recipe, ingredients)
-        # image = validated_data.pop('image')
-        recipe = Recipe.objects.create(**validated_data)
-        # recipe.save()
-        return recipe
+        recipe_ingredients_set(instance, ingredients)
+
+        tags = validated_data.pop('tags')
+        instance.tags.set(tags)
+
+        instance.save()
+        return instance
 
 
 class RecipeLittleSerializer(serializers.ModelSerializer):
+    """Короткий сериализатор для отображения рецепта/рецептов."""
+
     image = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
@@ -213,3 +217,6 @@ class FollowSerializer(serializers.ModelSerializer):
             recipes = recipes[:int(limit)]
         serializer = RecipeLittleSerializer(recipes, many=True, read_only=True)
         return serializer.data
+
+
+# Оптимизировать запросы к БД
