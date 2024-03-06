@@ -2,23 +2,25 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from foodgram.validators import validate_username
+import foodgram.constants as VAR
 
 
 class Profile(AbstractUser):
     email = models.EmailField(
         verbose_name='Email пользователя',
-        max_length=254,
+        max_length=VAR.USER_MAX_LEN_EMAIL,
         unique=True,
     )
     first_name = models.CharField(
         verbose_name='Имя пользователя',
-        max_length=150,
+        max_length=VAR.USER_MAX_LEN_FIRST_NAME,
     )
     username = models.CharField(
-        max_length=150, unique=True,
+        max_length=VAR.USER_MAX_LEN_USERNAME,
+        unique=True,
         validators=(validate_username,)
     )
-    last_name = models.CharField(max_length=150)
+    last_name = models.CharField(max_length=VAR.USER_MAX_LEN_LAST_NAME)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'username', 'last_name',]
 

@@ -80,8 +80,6 @@ class ProfileViewSet(UserViewSet):
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        # проверить существует ли запрашиваемый автор
-        # follow = get_object_or_404(User, id=id)
         following = Follow.objects.filter(user=request.user, following=follow)
         if not following.exists():
             return Response(

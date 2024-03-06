@@ -1,18 +1,18 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
-
+import foodgram.constants as VAR
 User = get_user_model()
 
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=VAR.INGREDIENT_MAX_NAME,
         unique=True,
         verbose_name='Название',
     )
     measurement_unit = models.CharField(
-        max_length=200,
+        max_length=VAR.INGREDIENT_MAX_NAME_UNIT,
         verbose_name='Единыцы измерений',
     )
 
@@ -70,16 +70,16 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         verbose_name='Название рецепта',
-        max_length=200,
+        max_length=VAR.RECIPE_MAX_NAME,
     )
     text = models.CharField(
         verbose_name='Описание рецепта',
-        max_length=1000,
+        max_length=VAR.RECIPE_MAX_TEXT,
     )
     cooking_time = models.IntegerField(
         verbose_name='Время приготовления',
         validators=(
-            MinValueValidator(1,),
+            MinValueValidator(VAR.RECIPE_MIN_TIME,),
         )
     )
     author = models.ForeignKey(

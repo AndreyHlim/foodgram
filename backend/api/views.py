@@ -171,7 +171,10 @@ class RecipesViewSet(viewsets.ModelViewSet):
         ])
 
         filename = f'{user.username}_shopping_list.txt'
-        response = HttpResponse(shopping_list, content_type='text/plain')
+        response = HttpResponse(
+            shopping_list,
+            content_type="text.txt; charset=utf-8"
+        )
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
 
@@ -181,4 +184,4 @@ class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     permission_classes = (AllowAny,)
     pagination_class = None
-    http_method_names = ['get']
+    http_method_names = ('get',)
