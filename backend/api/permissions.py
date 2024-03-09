@@ -5,7 +5,7 @@ class CustomBasePermission(BasePermission):
     """Базовый класс разрешений."""
 
     def has_permission(self, request, view):
-        return bool(
+        return (
             request.method in SAFE_METHODS
             or request.user.is_authenticated
             and request.user.is_active
