@@ -14,21 +14,18 @@ from rest_framework.response import Response
 
 from .paginators import PageLimitPagination
 from .permissions import AuthorStaffOrReadOnly
+from .filters import IngredientSearchFilter
 
 User = get_user_model()
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
     permission_classes = (AllowAny,)
-
-    def get_queryset(self):
-        queryset = Ingredient.objects.all()
-        name = self.request.query_params.get('name')
-        if name is not None:
-            return queryset.filter(name__startswith=name)
-        return queryset
+    filter_backends = (IngredientSearchFilter,)
+    search_fields = ('^name',)
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
