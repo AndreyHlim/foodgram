@@ -120,12 +120,20 @@ class RecipesSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, recipe):
         """Определяет находится ли рецепт в избранном."""
 
-        return obj_in_table(self, recipe, Favourite)
+        return obj_in_table(
+            user=self.context.get('request').user,
+            object=recipe,
+            model=Favourite
+        )
 
     def get_is_in_shopping_cart(self, recipe):
         """Определяет, есть ли рецепт в избранных рецептах пользователя."""
 
-        return obj_in_table(self, recipe, ShoppingCart)
+        return obj_in_table(
+            user=self.context.get('request').user,
+            object=recipe,
+            model=ShoppingCart
+        )
 
     def validate(self, data):
         tags = self.initial_data.get('tags')
