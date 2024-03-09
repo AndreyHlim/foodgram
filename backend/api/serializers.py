@@ -130,7 +130,7 @@ class RecipesSerializer(serializers.ModelSerializer):
         ingredients = self.initial_data.get('ingredients')
         image = self.initial_data.get('image')
 
-        if not tags or not ingredients or not image:
+        if not (tags and ingredients and image):
             raise ValidationError('Мало данных для создания рецепта.')
 
         tags_validator(tags, Tag)
