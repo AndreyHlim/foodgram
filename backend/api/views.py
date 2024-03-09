@@ -18,9 +18,8 @@ from .permissions import AuthorStaffOrReadOnly
 User = get_user_model()
 
 
-class IngredientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
-    http_method_names = ['get']
     pagination_class = None
     permission_classes = (AllowAny,)
 
