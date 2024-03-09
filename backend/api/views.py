@@ -175,9 +175,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return response
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AllowAny,)
     pagination_class = None
-    http_method_names = ('get',)
