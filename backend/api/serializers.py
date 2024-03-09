@@ -60,9 +60,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         """Узнаёт подписан ли запрашиваемый пользователь на запрашивающего"""
 
         request = self.context.get('request')
-        if request is None:
-            return False
-        return Follow.objects.filter(
+        return request is not None and Follow.objects.filter(
             user_id=request.user.id, following=user
         ).exists()
 
