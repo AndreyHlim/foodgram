@@ -1,4 +1,4 @@
-from api.serializers import (IngreSerializer, RecipeLittleSerializer,
+from api.serializers import (IngredientSerializer, RecipeLittleSerializer,
                              RecipesSerializer, TagSerializer)
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
@@ -18,8 +18,8 @@ from .permissions import AuthorStaffOrReadOnly
 User = get_user_model()
 
 
-class IngreViewSet(viewsets.ModelViewSet):
-    serializer_class = IngreSerializer
+class IngredientViewSet(viewsets.ModelViewSet):
+    serializer_class = IngredientSerializer
     http_method_names = ['get']
     pagination_class = None
     permission_classes = (AllowAny,)

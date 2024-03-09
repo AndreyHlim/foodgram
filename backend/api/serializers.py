@@ -14,7 +14,7 @@ from users.models import Follow
 User = get_user_model()
 
 
-class IngreSerializer(serializers.ModelSerializer):
+class IngredientSerializer(serializers.ModelSerializer):
     """
     Сериализатор модели 'Ингредиенты'.
     Используется для отображения списка ингредиентов.
