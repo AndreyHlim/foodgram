@@ -48,33 +48,37 @@ class ProfileViewSet(UserViewSet):
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=['post'],
         permission_classes=[IsAuthenticated],
     )
     def subscribe(self, request, id):
         follow = get_object_or_404(User, id=id)
-        if request.method == 'POST':
-            if request.user.id == int(id):
-                raise ValidationError('Попытка подписаться на самого себя!')
+        if request.user.id == int(id):
+            raise ValidationError('Попытка подписаться на самого себя!')
 
-            follow = Follow.objects.all().filter(
-                following=id
-            ).filter(user=request.user)
-            if follow.exists():
-                raise ValidationError('Подписка уже оформлена!')
-            try:
-                follow, create = Follow.objects.get_or_create(
-                    user=request.user,
-                    following=User.objects.get(id=id),
-                )
-            except IntegrityError:
-                raise ValidationError('Что-то навернулось!')
-            serializer = FollowSerializer(
-                follow.following, context={"request": request}
+        follow = Follow.objects.all().filter(
+            following=id
+        ).filter(user=request.user)
+        if follow.exists():
+            raise ValidationError('Подписка уже оформлена!')
+        try:
+            follow, create = Follow.objects.get_or_create(
+                user=request.user,
+                following=User.objects.get(id=id),
             )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            raise ValidationError('Что-то навернулось!')
+        serializer = FollowSerializer(
+            follow.following, context={"request": request}
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        following = Follow.objects.filter(user=request.user, following=follow)
+    @subscribe.mapping.delete
+    def delete_subscribe(self, request, id):
+        following = Follow.objects.filter(
+            user=request.user,
+            following=get_object_or_404(User, id=id)
+        )
         if not following.exists():
             return Response(
                 {'errors': 'Запрашиваемой подписки не сущестовало!'},
