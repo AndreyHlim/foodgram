@@ -52,12 +52,6 @@ class ProfileViewSet(UserViewSet):
         permission_classes=[IsAuthenticated],
     )
     def subscribe(self, request, id):
-        if not request.user.id:
-            return Response(
-                {'errors': 'Запрос от анонимного пользователя!'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
         follow = get_object_or_404(User, id=id)
         if request.method == 'POST':
             if request.user.id == int(id):
