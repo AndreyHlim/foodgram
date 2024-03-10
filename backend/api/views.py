@@ -3,7 +3,6 @@ from api.serializers import (IngredientSerializer, RecipeLittleSerializer,
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (AmountIngredients, Favourite, Ingredient, Recipe,
                             ShoppingCart, Tag)
@@ -12,9 +11,10 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from .filters import IngredientSearchFilter
+from .func import create_dependence, delete_dependence
 from .paginators import PageLimitPagination
 from .permissions import AuthorStaffOrReadOnly
-from .filters import IngredientSearchFilter
 
 User = get_user_model()
 
@@ -68,76 +68,27 @@ class RecipesViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk):
-        # if request.method == 'POST':
-        if not Recipe.objects.filter(id=pk).exists():
-            return Response(
-                {'errors': 'Рецепта не существует!'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        recipe = Recipe.objects.get(id=pk)
-        user = request.user
-
-        if Favourite.objects.filter(
-            user=user, recipe=recipe
-        ).exists():
-            return Response(
-                {'errors': 'Рецепт уже добавлен!'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        Favourite.objects.create(user=user, recipe=recipe)
-        serializer = RecipeLittleSerializer(recipe)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return create_dependence(
+            RecipeLittleSerializer, Favourite, request.user, pk
+        )
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
-        recipe = get_object_or_404(Recipe, id=pk)
-        favourite = Favourite.objects.filter(user=request.user, recipe=recipe)
-        if favourite.exists():
-            favourite.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            {'errors': 'Рецепт не был в избранном!'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return delete_dependence(Favourite, request.user, pk)
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=['post'],
         permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
-
-        if request.method == 'POST':
-            if not Recipe.objects.filter(id=pk).exists():
-                return Response(
-                    {'errors': 'Рецепта не существует!'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            recipe = Recipe.objects.get(id=pk)
-            user = request.user
-            if ShoppingCart.objects.filter(
-                user=user, recipe=recipe
-            ).exists():
-                return Response(
-                    {'errors': 'Рецепт уже добавлен к спису покупок!'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            ShoppingCart.objects.create(user=user, recipe=recipe)
-            serializer = RecipeLittleSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        recipe = get_object_or_404(Recipe, id=pk)
-        user = request.user
-        shop_recipe = ShoppingCart.objects.filter(user=user, recipe__id=pk)
-        if shop_recipe.exists():
-            shop_recipe.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            {'errors': f'Рецепт не в списке покупок у "{user}"!'},
-            status=status.HTTP_400_BAD_REQUEST
+        return create_dependence(
+            RecipeLittleSerializer, ShoppingCart, request.user, pk
         )
+
+    @shopping_cart.mapping.delete
+    def delete_shopping_cart(self, request, pk):
+        return delete_dependence(ShoppingCart, request.user, pk)
 
     @action(
         detail=False,
