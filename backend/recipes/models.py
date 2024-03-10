@@ -2,6 +2,7 @@ import foodgram.constants as var
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
+from colorfield.fields import ColorField
 
 User = get_user_model()
 
@@ -31,16 +32,14 @@ class Tag(models.Model):
         unique=True,
         verbose_name='Название',
     )
-    color = models.CharField(
-        max_length=var.TAG_MAX_LEN_COLOR_NAME,
+    color = ColorField(
+        format='hex',
         null=True,
         blank=True,
         verbose_name='Цвет',
     )
     slug = models.SlugField(
         max_length=var.TAG_MAX_LEN_SLUG_NAME,
-        null=True,
-        blank=True,
         unique=True,
         verbose_name='URL тега',
     )
