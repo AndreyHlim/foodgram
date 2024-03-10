@@ -156,24 +156,27 @@ class AmountIngredients(models.Model):
     display_author.short_description = 'Автор рецепта'
 
 
-class Favourite(models.Model):
-
+class AbstractModel(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='favorites',
         verbose_name='Пользователь',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorites',
         verbose_name='Избранный рецепт',
     )
 
     class Meta:
+        abstract = True
+
+
+class Favourite(AbstractModel):
+    class Meta:
         verbose_name = 'избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
+        default_related_name = 'favorites'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
@@ -186,23 +189,12 @@ class Favourite(models.Model):
                 f'рецепт "{self.recipe}" себе в избранное')
 
 
-class ShoppingCart(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='shopping',
-        verbose_name='Пользователь',
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='shopping',
-        verbose_name='Рецепт',
-    )
+class ShoppingCart(AbstractModel):
 
     class Meta:
         verbose_name = 'список покупок'
         verbose_name_plural = 'Списки покупок'
+        default_related_name = 'shopping'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
