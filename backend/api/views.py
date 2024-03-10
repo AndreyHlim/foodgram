@@ -64,41 +64,40 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=['post'],
         permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk):
+        # if request.method == 'POST':
+        if not Recipe.objects.filter(id=pk).exists():
+            return Response(
+                {'errors': 'Рецепта не существует!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        if request.method == 'POST':
-            if not Recipe.objects.filter(id=pk).exists():
-                return Response(
-                    {'errors': 'Рецепта не существует!'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            recipe = Recipe.objects.get(id=pk)
-            user = request.user
-
-            if Favourite.objects.filter(
-                user=user, recipe=recipe
-            ).exists():
-                return Response(
-                    {'errors': 'Рецепт уже добавлен!'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            Favourite.objects.create(user=user, recipe=recipe)
-            serializer = RecipeLittleSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        recipe = get_object_or_404(Recipe, id=pk)
+        recipe = Recipe.objects.get(id=pk)
         user = request.user
 
-        favourite = Favourite.objects.filter(user=user, recipe__id=pk)
+        if Favourite.objects.filter(
+            user=user, recipe=recipe
+        ).exists():
+            return Response(
+                {'errors': 'Рецепт уже добавлен!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        Favourite.objects.create(user=user, recipe=recipe)
+        serializer = RecipeLittleSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk):
+        recipe = get_object_or_404(Recipe, id=pk)
+        favourite = Favourite.objects.filter(user=request.user, recipe=recipe)
         if favourite.exists():
             favourite.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            {'errors': f'Рецепт не в избранном пользователя {user}!'},
+            {'errors': 'Рецепт не был в избранном!'},
             status=status.HTTP_400_BAD_REQUEST
         )
 
