@@ -1,7 +1,14 @@
-from django.contrib import admin
-from recipes.models import (AmountIngredients, Favourite, Ingredient, Recipe,
-                            ShoppingCart, Tag)
+from recipes.models import (
+    AmountIngredients,
+    Favourite,
+    Ingredient,
+    Recipe,
+    ShoppingCart,
+    Tag
+)
 from users.models import Follow, Profile
+
+from django.contrib import admin
 
 
 @admin.register(Profile)

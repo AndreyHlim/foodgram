@@ -2,6 +2,7 @@
 [Первоисточник: Яндес Практикум](https://github.com/yandex-praktikum/foodgram-project-react)
 1. [Описание](#description)
 2. [Как запустить проект](#start)
+3. [Ссылка на работающий проект](#website)
 ___
 <a id="description"></a>
 ## Описание
@@ -23,3 +24,7 @@ ___
     * ```sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic```
     * ```sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/```
 ___
+
+<a id="website"></a>
+## Ссылка на работающий проект 
+    https://garfild.ddnsking.com/

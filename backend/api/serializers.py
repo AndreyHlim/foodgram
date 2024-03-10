@@ -1,15 +1,16 @@
 import base64
 
 from api.func import obj_in_table, recipe_ingredients_set
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
-from django.db.models import F
 from foodgram.validators import ingredients_validator, tags_validator
 from recipes.models import Favourite, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
 from users.models import Follow
+
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.db.models import F
 
 User = get_user_model()
 

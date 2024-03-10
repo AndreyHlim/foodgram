@@ -1,20 +1,30 @@
-from api.serializers import (IngredientSerializer, RecipeLittleSerializer,
-                             RecipesSerializer, TagSerializer)
-from django.contrib.auth import get_user_model
-from django.db.models import Sum
-from django.http import HttpResponse
+from api.filters import IngredientSearchFilter, RecipeFilter
+from api.func import create_dependence, delete_dependence
+from api.paginators import PageLimitPagination
+from api.permissions import AuthorStaffOrReadOnly
+from api.serializers import (
+    IngredientSerializer,
+    RecipeLittleSerializer,
+    RecipesSerializer,
+    TagSerializer
+)
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import (AmountIngredients, Favourite, Ingredient, Recipe,
-                            ShoppingCart, Tag)
+from recipes.models import (
+    AmountIngredients,
+    Favourite,
+    Ingredient,
+    Recipe,
+    ShoppingCart,
+    Tag
+)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from .filters import IngredientSearchFilter, RecipeSearchFilter
-from .func import create_dependence, delete_dependence
-from .paginators import PageLimitPagination
-from .permissions import AuthorStaffOrReadOnly
+from django.contrib.auth import get_user_model
+from django.db.models import Sum
+from django.http import HttpResponse
 
 User = get_user_model()
 
@@ -23,49 +33,25 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    permission_classes = (AllowAny,)
-    filter_backends = (IngredientSearchFilter,)
-    search_fields = ('^name',)
+    permission_classes = (AllowAny, )
+    filter_backends = (IngredientSearchFilter, )
+    search_fields = ('^name', )
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
     serializer_class = RecipesSerializer
-    permission_classes = (AuthorStaffOrReadOnly,)
+    permission_classes = (AuthorStaffOrReadOnly, )
     http_method_names = ('get', 'post', 'patch', 'delete')
     pagination_class = PageLimitPagination
     queryset = Recipe.objects.all().order_by(
-        '-id'
+        '-id',
     ).select_related(
-        'author'
+        'author',
     ).prefetch_related(
         'ingredients', 'tags',
     )
-    filter_backends = (DjangoFilterBackend, RecipeSearchFilter)
-    search_fields = ('author__id',)
-
-    def get_queryset(self):
-        queryset = self.queryset
-
-        tags = self.request.query_params.getlist('tags')
-        if tags != []:
-            queryset = queryset.filter(tags__slug__in=tags).distinct('id')
-
-        user = self.request.user
-        if user.is_anonymous:
-            return queryset
-
-        favourite = self.request.query_params.get('is_favorited')
-        if favourite is not None:
-            if int(favourite) == 1:
-                return queryset.filter(favorites__user=user)
-            return queryset.exclude(favorites__user=user)
-
-        shopping = self.request.query_params.get('is_in_shopping_cart')
-        if shopping is not None:
-            if int(shopping) == 1:
-                return queryset.filter(shopping__user=user)
-            return queryset.exclude(shopping__user=user)
-        return queryset
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = RecipeFilter
 
     @action(
         detail=True,

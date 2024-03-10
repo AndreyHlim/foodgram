@@ -34,8 +34,5 @@ RECIPE_MIN_TIME = 1
 # Маскимальная длина <названия> тега
 TAG_MAX_NAME = 200
 
-# Максимальная длина <цветности> тега
-TAG_MAX_LEN_COLOR_NAME = 7
-
 # Максимальная длина <slug> тега
 TAG_MAX_LEN_SLUG_NAME = 200
