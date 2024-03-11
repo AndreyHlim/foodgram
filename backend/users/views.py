@@ -2,14 +2,12 @@ from api.serializers import FollowSerializer, ProfileSerializer
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from users.models import Follow
-
+import json
 from django.contrib.auth import get_user_model
-from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 
 User = get_user_model()
@@ -54,25 +52,24 @@ class ProfileViewSet(UserViewSet):
     )
     def subscribe(self, request, id):
         follow = get_object_or_404(User, id=id)
-        if request.user.id == int(id):
-            raise ValidationError('Попытка подписаться на самого себя!')
 
-        follow = Follow.objects.all().filter(
-            following=id
-        ).filter(user=request.user)
-        if follow.exists():
-            raise ValidationError('Подписка уже оформлена!')
-        try:
-            follow, create = Follow.objects.get_or_create(
-                user=request.user,
-                following=User.objects.get(id=id),
-            )
-        except IntegrityError:
-            raise ValidationError('Что-то навернулось!')
+        request.data['email'] = follow.email
+        request.data['username'] = follow.username
+        request.data['first_name'] = follow.first_name
+        request.data['last_name'] = follow.last_name
+
         serializer = FollowSerializer(
-            follow.following, context={"request": request}
+            follow,
+            data=request.data,
+            context={"request": request}
         )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if serializer.is_valid():
+            Follow.objects.create(
+                user=request.user,
+                following=follow,
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @subscribe.mapping.delete
     def delete_subscribe(self, request, id):

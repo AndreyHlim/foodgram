@@ -3,7 +3,7 @@ import base64
 from api.func import obj_in_table, recipe_ingredients_set
 from foodgram.validators import ingredients_validator, tags_validator
 from recipes.models import Favourite, Ingredient, Recipe, ShoppingCart, Tag
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.serializers import SerializerMethodField
 from users.models import Follow
 
@@ -203,8 +203,23 @@ class FollowSerializer(serializers.ModelSerializer):
             'recipes_count',
         )
 
+    def validate(self, data):
+        following = self.instance
+        user = self.context.get('request').user
+        if Follow.objects.filter(following=following, user=user).exists():
+            raise ValidationError(
+                'Вы уже подписаны на этого пользователя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        if user == following:
+            raise ValidationError(
+                'Вы не можете подписаться на самого себя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        return data
+
     def get_is_subscribed(self, user):
-        follow = Follow.objects.filter(user_id=user.id)
+        follow = Follow.objects.filter(user=user)
         return follow.exists()
 
     def get_recipes_count(self, user):
@@ -218,6 +233,3 @@ class FollowSerializer(serializers.ModelSerializer):
             recipes = recipes[:int(limit)]
         serializer = RecipeLittleSerializer(recipes, many=True, read_only=True)
         return serializer.data
-
-
-# Оптимизировать запросы к БД
