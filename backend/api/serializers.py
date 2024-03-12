@@ -231,6 +231,12 @@ class FollowSerializer(serializers.ModelSerializer):
         serializer = RecipeLittleSerializer(recipes, many=True, read_only=True)
         return serializer.data
 
+    # def to_representation(self, instance):
+    #     return FollowAddSerializer(
+    #         instance.following,
+    #         context={'request': self.context.get('request')}
+    #     ).data
+
 
 class FavouriteSerializer(serializers.ModelSerializer):
 
@@ -269,3 +275,34 @@ class ShoppingSerializer(FavouriteSerializer):
     class Meta:
         model = ShoppingCart
         fields = ('user', 'recipe')
+
+
+class FollowAddSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Follow
+        fields = ('user', 'following')
+
+    def to_representation(self, instance):
+        return FollowSerializer(
+            instance.following,
+            context={'request': self.context.get('request')},
+        ).data
+
+    def validate(self, data):
+        user = data.get('user')
+        follow = data.get('following')
+        if user == follow:
+            raise ValidationError(
+                'Подписываться на себя нельзя!',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        if Follow.objects.filter(
+            user_id=user,
+            following_id=follow
+        ).exists():
+            raise ValidationError(
+                'Такая подписка уже существует!',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        return data

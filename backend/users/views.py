@@ -1,5 +1,9 @@
 from api.permissions import AuthorStaffOrReadOnly
-from api.serializers import FollowSerializer, ProfileSerializer
+from api.serializers import (
+    FollowAddSerializer,
+    FollowSerializer,
+    ProfileSerializer
+)
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
@@ -46,25 +50,15 @@ class ProfileViewSet(UserViewSet):
         methods=['post'],
     )
     def subscribe(self, request, id):
-        follow = get_object_or_404(User, id=id)
-
-        request.data['email'] = follow.email
-        request.data['username'] = follow.username
-        request.data['first_name'] = follow.first_name
-        request.data['last_name'] = follow.last_name
-
-        serializer = FollowSerializer(
-            follow,
-            data=request.data,
+        # postman хочет 404, а сериализатор выдаст 400
+        get_object_or_404(User, id=id)
+        serializer = FollowAddSerializer(
+            data={'user': request.user.id, 'following': id},
             context={"request": request}
         )
-        if serializer.is_valid():
-            Follow.objects.create(
-                user=request.user,
-                following=follow,
-            )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
     def delete_subscribe(self, request, id):
