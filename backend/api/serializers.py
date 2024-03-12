@@ -5,14 +5,11 @@ from foodgram.validators import ingredients_validator, tags_validator
 from recipes.models import Favourite, Ingredient, Recipe, ShoppingCart, Tag
 from rest_framework import serializers, status
 from rest_framework.serializers import SerializerMethodField
-from users.models import Follow
+from users.models import Follow, User
 
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db.models import F
-
-User = get_user_model()
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -233,3 +230,42 @@ class FollowSerializer(serializers.ModelSerializer):
             recipes = recipes[:int(limit)]
         serializer = RecipeLittleSerializer(recipes, many=True, read_only=True)
         return serializer.data
+
+
+class FavouriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Favourite
+        fields = ('user', 'recipe')
+
+    def to_representation(self, instance):
+        return RecipeLittleSerializer(
+            instance.recipe,
+            context={'request': self.context.get('request')}
+        ).data
+
+    def validate(self, data):
+        recipe = data['recipe']
+        user = data['user']
+        if not Recipe.objects.filter(id=recipe.id).exists():
+            # postman хочет именно 400 ошибку, а не 404
+            raise ValidationError(
+                'Такого рецепта не существует',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        if self.Meta.model.objects.filter(
+            user=user.id,
+            recipe=recipe.id,
+        ).exists():
+            raise ValidationError(
+                'Такой объект уже существует',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        return data
+
+
+class ShoppingSerializer(FavouriteSerializer):
+
+    class Meta:
+        model = ShoppingCart
+        fields = ('user', 'recipe')

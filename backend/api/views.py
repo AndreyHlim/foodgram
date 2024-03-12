@@ -1,11 +1,11 @@
 from api.filters import IngredientSearchFilter, RecipeFilter
 from api.func import create_dependence, delete_dependence
 from api.paginators import PageLimitPagination
-from api.permissions import AuthorStaffOrReadOnly
 from api.serializers import (
+    FavouriteSerializer,
     IngredientSerializer,
-    RecipeLittleSerializer,
     RecipesSerializer,
+    ShoppingSerializer,
     TagSerializer
 )
 from django_filters.rest_framework import DjangoFilterBackend
@@ -19,14 +19,11 @@ from recipes.models import (
 )
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
-
-User = get_user_model()
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -40,7 +37,6 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipesViewSet(viewsets.ModelViewSet):
     serializer_class = RecipesSerializer
-    permission_classes = (AuthorStaffOrReadOnly, )
     http_method_names = ('get', 'post', 'patch', 'delete')
     pagination_class = PageLimitPagination
     queryset = Recipe.objects.all().order_by(
@@ -56,12 +52,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post'],
-        permission_classes=[IsAuthenticated]
     )
     def favorite(self, request, pk):
-        return create_dependence(
-            RecipeLittleSerializer, Favourite, request.user, pk
-        )
+        return create_dependence(FavouriteSerializer, request.user, pk)
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
@@ -70,12 +63,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post'],
-        permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk):
-        return create_dependence(
-            RecipeLittleSerializer, ShoppingCart, request.user, pk
-        )
+        return create_dependence(ShoppingSerializer, request.user, pk)
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
@@ -84,7 +74,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['get'],
-        permission_classes=[IsAuthenticated]
     )
     def download_shopping_cart(self, request):
         user = request.user

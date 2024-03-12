@@ -1,3 +1,4 @@
+from api.permissions import AuthorStaffOrReadOnly
 from api.serializers import FollowSerializer, ProfileSerializer
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -5,12 +6,9 @@ from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from users.models import Follow
+from users.models import Follow, User
 
-from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-
-User = get_user_model()
 
 
 class ProfileViewSet(UserViewSet):
@@ -21,15 +19,13 @@ class ProfileViewSet(UserViewSet):
     def get_permissions(self):
         if self.action == 'me':
             return (IsAuthenticated(),)
+        if self.action in ['subscribe', 'delete_subscribe']:
+            return (AuthorStaffOrReadOnly(),)
         return (AllowAny(),)
-
-    def get_queryset(self):
-        return User.objects.all()
 
     @action(
         detail=False,
         methods=['get'],
-        permission_classes=[IsAuthenticated],
     )
     def subscriptions(self, request):
         user = request.user
@@ -48,7 +44,6 @@ class ProfileViewSet(UserViewSet):
     @action(
         detail=True,
         methods=['post'],
-        permission_classes=[IsAuthenticated],
     )
     def subscribe(self, request, id):
         follow = get_object_or_404(User, id=id)

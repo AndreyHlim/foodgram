@@ -49,9 +49,9 @@ def delete_dependence(model, user, pk):
     )
 
 
-def create_dependence(serializer, model, user, pk):
-    serializer = serializer(
-        recipe := get_object_or_404(Recipe, id=pk)
-    )
-    model.objects.create(user=user, recipe=recipe)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+def create_dependence(serializer, user, pk):
+    serializers = serializer(data={'user': user.id, 'recipe': pk})
+    if serializers.is_valid():
+        serializers.save()
+        return Response(serializers.data, status=status.HTTP_201_CREATED)
+    return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
