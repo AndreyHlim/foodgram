@@ -1,8 +1,9 @@
-# FOOODGRAM - Продуктовый помощник
+# FOODGRAM - Продуктовый помощник
 [Первоисточник: Яндес Практикум](https://github.com/yandex-praktikum/foodgram-project-react)
 1. [Описание](#description)
 2. [Как запустить проект](#start)
 3. [Ссылка на работающий проект](#website)
+4. [Инструменты и стек](#instruments)
 ___
 <a id="description"></a>
 ## Описание
@@ -28,3 +29,18 @@ ___
 <a id="website"></a>
 ## Ссылка на работающий проект 
     https://garfild.ddnsking.com/
+
+<a id='instruments'></a>
+## Инструменты и стек
+1. Python
+2. Django
+3. Docker
+4. JSON
+6. API
+7. JWT
+8. Nginx
+9. Telegram
+10. PostgreSQL
+11. React
+12. Gunicorn
+13. Postman
