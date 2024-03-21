@@ -13,7 +13,7 @@ ___
 <a id="start"></a>
 ## Как запустить проект (на Linux)
 * Клонируйте его в свою рабочую директорию на компьютере:
-    * ```git clone git@github.com:AndreyHlim/foodgram-project-react.git```
+    * ```git clone git@github.com:AndreyHlim/tastyfood.git```
     * ```cd foodgram-project-react```
 * Создайте файл ```.env``` в директории ```foodgram-project-react``` по примеру из файла ```.env.example```
 * Запустите проект
